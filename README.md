@@ -44,14 +44,14 @@
 ```bash
 python bday_mailer.py
 ```
-4. The script will monitor the time and send emails at the scheduled time (default: 04:24 PKT).
+4. The script will monitor the time and send emails at the scheduled time (default: 00:00 PKT).
 
 ## Customization
  - Email Time: Adjust the time in the main() function:
     ```python
-    if now.strftime('%H:%M') == '04:24':
+    if now.strftime('%H:%M') == '00:00':
     ```
-   Replace 04:24 with your desired time.
+   Replace 00:00 with your desired time.
  - Email Content: Modify the body variable in the send_birthday_emails() function.
 ## Logging
 Logs are saved to the specified file (default: task.txt). It includes details of:
