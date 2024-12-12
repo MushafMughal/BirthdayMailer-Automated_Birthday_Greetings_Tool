@@ -91,7 +91,11 @@ def main():
     """Main loop to monitor and send emails at the scheduled time."""
     while True:
         now = datetime.now(pkt_timezone)
+<<<<<<< HEAD
         if now.strftime('%H:%M') == '00:00':  # Adjust time as needed
+=======
+        if now.strftime('%H:%M') == '04:24':  # Adjust time as needed
+>>>>>>> 8eef053b78d2e440d879e497bff0d7a4204c09fa
             send_birthday_emails()
             time.sleep(86400)  # Wait 24 hours
         else:
