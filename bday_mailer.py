@@ -65,17 +65,15 @@ def send_birthday_emails():
     for _, row in birthday_people.iterrows():
         to_values = row['Email ID (Official)']
         cc_values = f"{row['CC1']}; {row['CC2']}"
-        subject = "Happy Birthday from Robust Support & Solutions!"
+        subject = "Happy Birthday from [Company Name]!"
         body = (
-            f"Hello {row['Full Name (As Per CNIC)']},\n\n"
-            "Happy Birthday from all of us at Robust Support & Solutions!\n\n"
-            "We hope your special day is filled with joy, relaxation, and your favorite activities. "
-            "Your dedication and hard work are deeply appreciated, and we are grateful to have you on our team.\n\n"
-            "Here’s to celebrating your contributions and looking forward to your continued success and happiness "
-            "in the year ahead!\n\n"
-            "Best wishes,\n\nRobust Support & Solutions Team"
+            f"Hello {row['Full Name']},\n\n"
+            "Happy Birthday from all of us at [Company Name]!\n\n"
+            "We hope your special day is filled with joy, relaxation, and all the things you love. "
+            "Your dedication and hard work are truly appreciated, and we are lucky to have you as part of our team.\n\n"
+            "Here’s to celebrating you and looking forward to your continued success and happiness in the year ahead!\n\n"
+            "Best wishes,\n\n[Company Name] Team"
         )
-
         try:
             mail = outlook.CreateItem(0)
             mail.To = to_values
@@ -91,7 +89,7 @@ def main():
     """Main loop to monitor and send emails at the scheduled time."""
     while True:
         now = datetime.now(pkt_timezone)
-        if now.strftime('%H:%M') == '04:24':  # Adjust time as needed
+        if now.strftime('%H:%M') == '00:00':  # Adjust time as needed
             send_birthday_emails()
             time.sleep(86400)  # Wait 24 hours
         else:
