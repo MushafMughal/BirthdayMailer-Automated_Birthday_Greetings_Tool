@@ -40,72 +40,62 @@ def restart_outlook():
     except Exception as e:
         logging.error(f"Failed to restart Outlook: {e}")
 
-while True:
-    now = datetime.now(pkt_timezone)
-    print(f"Current time: {now.strftime('%H:%M:%S')}")  # Debugging line
+def send_birthday_emails():
+    """Send birthday emails to employees."""
+    today = datetime.now(pkt_timezone).strftime('%Y-%m-%d')
+    birthday_people = bd[bd['Wishing Dates'] == today]
 
-    # Check if the current time is 00:00:00 PKT
-    if now.strftime('%H:%M') == '00:00' and now.second == 0:
-        print("Time Matched")
-        today = now.strftime('%Y-%m-%d')
-        print(f"Today's date: {today}")  # Debugging line
+    if birthday_people.empty:
+        logging.info("No birthdays to celebrate today.")
+        return
 
-        # Filter the DataFrame for today's wishing dates
-        birthday_people = bd[bd['Wishing Dates'] == today]
-        print(f"Found {len(birthday_people)} people with today's wishing date.")  # Debugging line
+    try:
+        outlook = win32.Dispatch('Outlook.Application')
+        logging.info("Outlook instance created successfully.")
+    except Exception as e:
+        logging.error(f"Failed to create Outlook instance: {e}")
+        restart_outlook()
+        try:
+            outlook = win32.Dispatch('Outlook.Application')
+            logging.info("Outlook instance created successfully after restart.")
+        except Exception as e:
+            logging.error(f"Failed to create Outlook instance after restart: {e}")
+            return
 
-        if birthday_people.empty:
-            print("No wishing dates match today.")
+    for _, row in birthday_people.iterrows():
+        to_values = row['Email ID (Official)']
+        cc_values = f"{row['CC1']}; {row['CC2']}"
+        subject = "Happy Birthday from Robust Support & Solutions!"
+        body = (
+            f"Hello {row['Full Name (As Per CNIC)']},\n\n"
+            "Happy Birthday from all of us at Robust Support & Solutions!\n\n"
+            "We hope your special day is filled with joy, relaxation, and your favorite activities. "
+            "Your dedication and hard work are deeply appreciated, and we are grateful to have you on our team.\n\n"
+            "Here’s to celebrating your contributions and looking forward to your continued success and happiness "
+            "in the year ahead!\n\n"
+            "Best wishes,\n\nRobust Support & Solutions Team"
+        )
+
+        try:
+            mail = outlook.CreateItem(0)
+            mail.To = to_values
+            mail.CC = cc_values
+            mail.Subject = subject
+            mail.Body = body
+            mail.Send()
+            logging.info(f"Email sent to {to_values}")
+        except Exception as e:
+            logging.error(f"Failed to send email to {to_values}: {e}")
+
+def main():
+    """Main loop to monitor and send emails at the scheduled time."""
+    while True:
+        now = datetime.now(pkt_timezone)
+        if now.strftime('%H:%M') == '04:24':  # Adjust time as needed
+            send_birthday_emails()
+            time.sleep(86400)  # Wait 24 hours
         else:
-            print("Checking birthdays...")  # Debugging line
+            time.sleep(1)
 
-            # Create an Outlook instance
-            try:
-                outlook = win32.Dispatch('Outlook.Application')
-                log_message("Outlook instance created successfully.")
-            except Exception as e:
-                log_message(f"Failed to dispatch Outlook instance: {str(e)}")
-                restart_outlook()  # Restart Outlook if there was an issue
-                try:
-                    outlook = win32.Dispatch('Outlook.Application')
-                    log_message("Outlook instance created successfully after restart.")
-                except Exception as e:
-                    log_message(f"Failed to create Outlook instance after restart: {str(e)}")
-
-            for index, row in birthday_people.iterrows():
-                to_values = row['Email ID (Official)']
-                cc_values = row['CC1'] + '; ' + row['CC2'] + ';'
-                print(f"Sending email to: {to_values}, CC: {cc_values}")  # Debugging line
-
-                # Create a new email
-                mail = outlook.CreateItem(0)
-                mail.To = to_values
-                mail.CC = cc_values
-                mail.Subject = 'Happy Birthday from Robust Support & Solutions!'
-
-                # Construct the email body
-                body = (
-                    f"Hello {row['Full Name (As Per CNIC)']},\n\n"
-                    "Happy Birthday from all of us at Robust Support & Solutions!\n\n"
-                    "We hope your special day is filled with joy, relaxation, and your favorite activities. "
-                    "Your dedication and hard work are deeply appreciated, and we are grateful to have you on our team.\n\n"
-                    "Here’s to celebrating your contributions and looking forward to your continued success and happiness "
-                    "in the year ahead!\n\n"
-                    "Best wishes,\n\nRobust Support & Solutions Team"
-                )
-
-                mail.Body = body
-                print("Email body constructed.")  # Debugging line
-
-                # Send the email
-                try:
-                    mail.Send()
-                    log_message(f"Email sent to: {to_values}")
-                except Exception as e:
-                    log_message(f"Failed to send email to {to_values}: {str(e)}")
-
-        # Wait for 24 hours before checking again
-        time.sleep(86400 - (datetime.now(pkt_timezone) - now).seconds)
-    else:
-        # Wait for a short time before checking the time again
-        time.sleep(1)
+if __name__ == "__main__":
+    main()
