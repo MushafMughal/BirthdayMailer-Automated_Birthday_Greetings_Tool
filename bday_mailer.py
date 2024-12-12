@@ -47,8 +47,8 @@ while True:
     now = datetime.now(pkt_timezone)
     print(f"Current time: {now.strftime('%H:%M:%S')}")  # Debugging line
 
-    # Check if the current time is 04:24:00 PKT
-    if now.strftime('%H:%M') == '21:44' and now.second == 0:
+    # Check if the current time is 00:00:00 PKT
+    if now.strftime('%H:%M') == '00:00' and now.second == 0:
         print("Time Matched")
         today = now.strftime('%Y-%m-%d')
         print(f"Today's date: {today}")  # Debugging line
