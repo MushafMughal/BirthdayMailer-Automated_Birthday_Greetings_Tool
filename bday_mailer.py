@@ -4,44 +4,41 @@ from datetime import datetime
 import pytz
 import time
 import os
+import logging
+from logging.handlers import RotatingFileHandler
 
+# Set up logging with rotation
+log_file_path = "task.txt"
+handler = RotatingFileHandler(log_file_path, maxBytes=5_000_000, backupCount=5)
+logging.basicConfig(level=logging.INFO, handlers=[handler], format='%(asctime)s - %(levelname)s - %(message)s')
 
-# Function to log messages to a file
-def log_message(message):
-    with open("task.txt", 'a') as file:
-        file.write(f'{datetime.now()}: {message}\n')
+logging.info("Script started.")
 
-log_message("The script started running.")
+# Load the Excel file and preprocess the data
+try:
+    bd = pd.read_excel('Birthday Months & Emails.xlsx')
+    bd = bd[['Full Name (As Per CNIC)', 'Email ID (Official)', 'Date Of Birth', 'CC1', 'CC2']]
+    bd['Date Of Birth'] = pd.to_datetime(bd['Date Of Birth'])
+except Exception as e:
+    logging.error(f"Error loading or processing the Excel file: {e}")
+    raise
 
-
-# Load the Excel file and select relevant columns
-bd = pd.read_excel('Birthday Months & Emails.xlsx')
-bd = bd[['Full Name (As Per CNIC)', 'Email ID (Official)', 'Date Of Birth', 'CC1', 'CC2']]
-
-# Convert 'Date Of Birth' to datetime
-bd['Date Of Birth'] = pd.to_datetime(bd['Date Of Birth'])
-
-# Create 'Wishing Dates' by updating the year to the current year in Karachi timezone
+# Prepare wishing dates
 pkt_timezone = pytz.timezone('Asia/Karachi')
 current_year = datetime.now(pkt_timezone).year
 bd['Wishing Dates'] = bd['Date Of Birth'].apply(lambda x: x.replace(year=current_year))
 
-
-
 def restart_outlook():
-    # Kill any existing Outlook processes
-    os.system('taskkill /IM outlook.exe /F')
-    log_message("Existing Outlook process killed.")
-    
-    # Wait a moment to ensure the process has fully terminated
-    time.sleep(5)
-
-    # Attempt to launch Outlook directly before using COM object
-    os.startfile("outlook.exe")
-    log_message("Outlook restarted.")
-    
-    # Give Outlook a moment to initialize
-    time.sleep(10)
+    """Restart Outlook to ensure it's running."""
+    try:
+        os.system('taskkill /IM outlook.exe /F')
+        logging.info("Outlook process terminated.")
+        time.sleep(5)
+        os.startfile("outlook.exe")
+        logging.info("Outlook restarted.")
+        time.sleep(10)
+    except Exception as e:
+        logging.error(f"Failed to restart Outlook: {e}")
 
 while True:
     now = datetime.now(pkt_timezone)
