@@ -1,6 +1,6 @@
 # Workplace BirthdayWisher: HR's Automated Birthday Greetings Tool
 
-**BdayMailer** is a Python-based script designed to automate the sending of birthday greetings via Outlook. It reads employee information from an Excel file, checks for birthdays, and sends personalized emails with CC recipients included.
+**Workplace BirthdayWisher** is a Python-based script designed to automate the sending of birthday greetings via Outlook. It reads employee information from an Excel file or SQL Database, checks for birthdays, and sends personalized emails with CC recipients included.
 
 ## Features
 
